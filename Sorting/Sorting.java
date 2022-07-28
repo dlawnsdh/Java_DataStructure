@@ -3,12 +3,13 @@ package sorting;
 import heap.Heap;
 import heap.PQException;
 
-// 힙 정렬까지 구현
 public class Sorting<E extends Comparable> {
 	private E[] A;
+	private Integer[] a;
 	
 	public Sorting(E[] B) {
 		A = B;
+		a = (Integer[]) B;
 	}
 	
 	public E[] selectionSort() {
@@ -124,6 +125,64 @@ public class Sorting<E extends Comparable> {
 			A[i] = heap.deleteMax();
 		return A;
 	}
+	
+	
+	public E[] shellSort() {
+		for (int h = A.length / 7; h > 5; h = h / 5 - 1)
+			for (int k = 0; k < h; k++)
+				stepInsertionSort(k, h);
+		stepInsertionSort(0, 1);
+		return A;
+	}
+	
+	private void stepInsertionSort(int k, int h) {
+		int j; E item;
+		for (int i = k + h; i < A.length; i += h) {
+			item = A[i];
+			for (j = i - h; j >= 0 && A[j].compareTo(item) > 0; j -= h)
+				A[j + h] = A[j];
+			A[j + h] = item;
+		}
+	}
+	
+	public int[] countingSort(int num_max) {
+		int[] cnt = new int[num_max];
+		int[] b = new int[a.length];
+		for (int i = 0; i < A.length; i++) 
+			cnt[a[i]]++;
+		cnt[0]--;
+		for (int i = 1; i < num_max; i++)
+			cnt[i] += cnt[i - 1];
+		for (int i = a.length - 1; i >= 0; i--) {
+			b[cnt[a[i]]] = a[i];
+			cnt[a[i]]--;
+		}
+		return b;
+	}
+	
+	public Integer[] radixSort() {
+		int[] cnt = new int[10], start = new int[10];
+		int B[] = new int[a.length];
+		int max = -1;
+		for (int i = 0; i < a.length; i++)
+			if (a[i].compareTo(max) > 0)
+				max = a[i];
+		int numDigits = (int) Math.log10(max) + 1;
+		for (int digit = 1; digit <= numDigits; digit++) {
+			for (int i = 0; i < a.length; i++)
+				cnt[(int) (a[i] / Math.pow(10, digit - 1)) % 10]++;
+			start[0] = 0;
+			for (int d = 1; d <= 9; d++)
+				start[d] = start[d - 1] + cnt[d - 1];
+			for (int i = 0; i < a.length; i++)
+				B[start[(int) (a[i] / Math.pow(10, digit - 1)) % 10]++] = a[i];
+			for (int i = 0; i < a.length; i++)
+				a[i] = B[i];
+ 		}
+		return a;
+	}
+	
+	
 	
 	/*public E[] selectionSort() {
 		for (int i = 0; i < A.length - 1; i++)
